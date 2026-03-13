@@ -22,7 +22,7 @@
   
   function startAutoGC() {
     console.log('Auto-GC started');
-    Game.Notify(`Auto GC ON`,`Press Z to toggle`,[4,6],true);
+    Game.Notify(`Auto GC ON`,`Press Z to toggle`,[46],true);
     intervalId = setInterval(function() {
     Game.shimmers.forEach(function(shimmer)
     {
@@ -36,7 +36,7 @@
 
   function stopAutoGC() {
     console.log('Auto-GC stopped');
-    Game.Notify(`Auto GC OFF`,`Press Z to toggle`,[1,3],true);
+    Game.Notify(`Auto GC OFF`,`Press Z to toggle`,[13],true);
     clearInterval(intervalId);
   }
 
