@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CUnleash
 // @namespace    http://tampermonkey.net/
-// @version      7.2
+// @version      0.1
 // @description  Unleash your cookie potential.
 // @author       petar105
 // @match        https://orteil.dashnet.org/cookieclicker/
@@ -339,3 +339,4 @@ else setTimeout(waitForGame,100)
 })
 
 }, 700);
+
