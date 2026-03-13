@@ -33,6 +33,21 @@
     }
   });
 
+  document.addEventListener('keydown', function(event) {
+    if (event.code === 'KeyZ') {
+      state = !state; // toggle state
+      if (state) {
+        // code to run when state is ON
+        console.log('State is ON');
+        startAutoClicker();
+      } else {
+        // code to run when state is OFF
+        console.log('State is OFF');
+        stopAutoClicker();
+      }
+    }
+  });
+  
   function startAutoClicker() {
     console.log('Auto-clicker started');
     Game.Notify(`Auto clicker ON`,`Press X to toggle`,[0,35],false);
@@ -322,4 +337,5 @@ Game.registerMod("gincookistocker",{
 }
 else setTimeout(waitForGame,100)
 })
+
 }, 700);
