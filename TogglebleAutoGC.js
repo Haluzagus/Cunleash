@@ -10,11 +10,11 @@
       if (state) {
         // code to run when state is ON
         console.log('State is ON');
-        startAutoClicker();
+        startAutoGC();
       } else {
         // code to run when state is OFF
         console.log('State is OFF');
-        stopAutoClicker();
+        stopAutoGC();
       }
     }
   });
