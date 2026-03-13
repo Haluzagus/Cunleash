@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CUnleash
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Unleash your cookie potential.
 // @author       petar105
 // @match        https://orteil.dashnet.org/cookieclicker/
@@ -97,7 +97,7 @@ setTimeout(function() {
 }, 200); // Don't load Cookie Monster parallel with the game, CM loads but the game gets stuck
 
 setTimeout(function() {
-  Game.LoadMod("https://rawgit.com/yannprada/cookie-garden-helper/master/cookie-garden-helper.js");
+  Game.LoadMod("https://cdn.jsdelivr.net/gh/yannprada/cookie-garden-helper@master/cookie-garden-helper.js");
 }, 400); // Same goes for Cookie Garden Helper
 
 
@@ -325,5 +325,6 @@ else setTimeout(waitForGame,100)
 })
 
 }, 700);
+
 
 
