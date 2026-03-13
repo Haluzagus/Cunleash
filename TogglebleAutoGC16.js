@@ -19,10 +19,10 @@
     }
   });
 
-Game.Notify(`0,0`,``,[0,0],false);
-Game.Notify(`1,0`,``,[1,0],false);
-Game.Notify(`2,0`,``,[2,0],false);
-Game.Notify(`3,0`,``,[3,0],false);
+Game.Notify(`0,0`,``,[4,0],false);
+Game.Notify(`1,0`,``,[4,1],false);
+Game.Notify(`2,0`,``,[4,2],false);
+Game.Notify(`3,0`,``,[4,3],false);
   
   function startAutoGC() {
     console.log('Auto-GC started');
