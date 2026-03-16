@@ -367,6 +367,18 @@ Game.registerMod('CookiStocker',{
 			CookiStocker.reset(hard);
 		});
 
+CookiStocker.ReplaceGameMenu = function()
+{
+	Game.customOptionsMenu.push(function()
+	{
+		// Build a real node from the HTML string
+		const content = document.createElement('div');
+		content.innerHTML = CookiStocker.getMenuString();
+
+		// CCSE expects a Node here, not a string
+		CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
+	});
+		
 		// Defer menu wiring until CCSE is available (prevents load-time crash)
 		(function waitCCSE(tries) {
 			if (typeof CCSE !== 'undefined'
@@ -1358,17 +1370,7 @@ CookiStocker.calcCommission = function(n){
 	return (rate*100).toFixed(3) + "%";
 };
 
-CookiStocker.ReplaceGameMenu = function()
-{
-	Game.customOptionsMenu.push(function()
-	{
-		// Build a real node from the HTML string
-		const content = document.createElement('div');
-		content.innerHTML = CookiStocker.getMenuString();
 
-		// CCSE expects a Node here, not a string
-		CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
-	});
 	
 	Game.customStatsMenu.push(function() {
 		CCSE.AppendStatsVersionNumber(CookiStocker.name, CookiStocker.version);
