@@ -1,0 +1,12 @@
+Game.Notify(`4,0`,``,[4,0],false);
+Game.Notify(`4,1`,``,[4,1],false);
+Game.Notify(`4,2`,``,[4,2],false);
+Game.Notify(`4,3`,``,[4,3],false);
+Game.Notify(`4,4`,``,[4,4],false);
+Game.Notify(`4,5`,``,[4,5],false);
+Game.Notify(`4,6`,``,[4,6],false);
+Game.Notify(`4,7`,``,[4,7],false);
+Game.Notify(`4,8`,``,[4,8],false);
+Game.Notify(`4,9`,``,[4,9],false);
+Game.Notify(`4,10`,``,[4,10],false);
+Game.Notify(`4,11`,``,[4,11],false);
