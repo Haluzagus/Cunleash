@@ -367,24 +367,7 @@ Game.registerMod('CookiStocker',{
 			CookiStocker.reset(hard);
 		});
 
-		// Defer menu wiring until CCSE is available (prevents load-time crash)
-		(function waitCCSE(tries) {
-			if (typeof CCSE !== 'undefined'
-				&& typeof CCSE.AppendCollapsibleOptionsMenu === 'function'
-				&& typeof CCSE.AppendStatsVersionNumber === 'function') {
-				try {
-					CookiStocker.ReplaceGameMenu();
-				} catch (e) {
-					console.warn('[CookiStocker] ReplaceGameMenu failed; will retry shortly:', e);
-					setTimeout(function(){ waitCCSE(tries - 1); }, 250);
-					return;
-				}
-			} else if (tries > 0) {
-				setTimeout(function(){ waitCCSE(tries - 1); }, 250);
-			} else {
-				console.warn('[CookiStocker] CCSE not detected; Options/Stats menu will not be installed.');
-			}
-		})(120);	// up to ~30s
+
 
 		Game.Notify('CookiStocker is loaded', stockerGreeting, [1, 33], false);
 
