@@ -1,0 +1,10 @@
+Game.Notify(`4,10`,``,[4,0],false);
+Game.Notify(`4,11`,``,[4,1],false);
+Game.Notify(`4,12`,``,[4,2],false);
+Game.Notify(`4,13`,``,[4,3],false);
+Game.Notify(`4,14`,``,[4,4],false);
+Game.Notify(`4,15`,``,[4,5],false);
+Game.Notify(`4,16`,``,[4,6],false);
+Game.Notify(`4,17`,``,[4,7],false);
+Game.Notify(`4,18`,``,[4,8],false);
+Game.Notify(`4,19`,``,[4,9],false);
