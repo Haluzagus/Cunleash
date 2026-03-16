@@ -503,7 +503,7 @@ CookiStocker.save = function() {
 		CookiStocker.patchedMaxStock || (function(){ /* the override above */ })();
 		if (!CookiStocker.patchedMaxStock) {
 			var M = Game.Objects['Bank'].minigame;
-			var oldGet = M.getGoodMaxStock;
+			
 			M.getGoodMaxStock = function(good){
 				var base = oldGet.call(this, good);
 				if (CookiStocker.Bank.officeLevel < 3 || stockList.Profits < CS_PLASMIC_PROFITS)
@@ -530,6 +530,7 @@ CookiStocker.save = function() {
 			};
 			CookiStocker.patchedMaxStock = true;
 		}
+		var oldGet = M.getGoodMaxStock;
 		CookiStocker.installBankTickHook();
 		
 		let datStr = `
