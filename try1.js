@@ -62,7 +62,7 @@ const CS_PLASMIC_PROFITS = 100000000;			// $100,000,000
 const CS_BOSE_EINSTEIN_PROFITS = 500000000;		// $500,000,000
 
 if (typeof CCSE === 'undefined')
-	Game.LoadMod('https://klattmose.github.io/CookieClicker/SteamMods/CCSE/main.js')
+	Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js')
 
 if (typeof CookiStocker === 'undefined') var CookiStocker = {};
 
@@ -175,41 +175,41 @@ ensureStockerStyles();
 CookiStocker.extraStatsId = 'stockerExtra';
 
 // Rebuilds the 2nd/3rd/4th lines exactly as before
-CookiStocker.buildExtraStatsHTML = function(){
+//CookiStocker.buildExtraStatsHTML = function(){
 	// These are the same strings you already use (datStr2/datStr3/datStr4)
 	// Keeping markup identical; wrapped by our container.
-	let html = '';
-	html += `
-		<div class="stocker-stats">
-			<span class="stat">Net cookies won: <span id="netCookies">0</span>.</span>
-			<span class="stat">Cookies per hour: <span id="cookiesHour">0</span>.</span>
-			<span class="stat">Cookies per day: <span id="cookiesDay">0</span>.</span>
-			<span class="stat">Purchases: <span id="Purchases">0</span>.</span>
-			<span class="stat">Sales: <span id="Sales">0</span>.</span>
-		</div>
-	`;
-	html += `
-		<div class="stocker-stats">
-			<span class="stat">CPS multiple: <span id="cpsMultiple">0</span>.</span>
-			<span class="stat">Stocks held: <span id="stocksHeld">${stockList.totalStocks}</span>.</span>
-			<span class="stat">Total shares: <span id="totalShares">${Beautify(stockList.totalShares, 0)}</span>.</span>
-			<span class="stat">Total value: <span id="totalValue">${Beautify(stockList.totalValue, 2)}</span>.</span>
-			<span class="stat">Unrealized profits: <span id="unrealizedProfits">${Beautify(stockList.unrealizedProfits, 0)}</span>.</span>
-		</div>
-	`;
-	html += `
-		<div class="stocker-stats">
-			<span class="stat">Profitable stocks: <span id="profitableStocks">0</span>.</span>
-			<span class="stat">Unprofitable stocks: <span id="unprofitableStocks">0</span>.</span>
-			<span class="stat">Profitable trades: <span id="profitableTrades">0</span>.</span>
-			<span class="stat">Unprofitable trades: <span id="unprofitableTrades">0</span>.</span>
-			<span class="break"></span>
-			<span class="stat">Average profit per trade: <span id="averageProfit">$0</span>.</span>
-			<span class="stat">Average loss per trade: <span id="averageLoss">$0</span>.</span>
-		</div>
-	`;
-	return html;
-};
+//	let html = '';
+//	html += `
+//		<div class="stocker-stats">
+//			<span class="stat">Net cookies won: <span id="netCookies">0</span>.</span>
+//			<span class="stat">Cookies per hour: <span id="cookiesHour">0</span>.</span>
+//			<span class="stat">Cookies per day: <span id="cookiesDay">0</span>.</span>
+//			<span class="stat">Purchases: <span id="Purchases">0</span>.</span>
+//			<span class="stat">Sales: <span id="Sales">0</span>.</span>
+//		</div>
+//	`;
+//	html += `
+//		<div class="stocker-stats">
+//			<span class="stat">CPS multiple: <span id="cpsMultiple">0</span>.</span>
+//			<span class="stat">Stocks held: <span id="stocksHeld">${stockList.totalStocks}</span>.</span>
+//			<span class="stat">Total shares: <span id="totalShares">${Beautify(stockList.totalShares, 0)}</span>.</span>
+//			<span class="stat">Total value: <span id="totalValue">${Beautify(stockList.totalValue, 2)}</span>.</span>
+//			<span class="stat">Unrealized profits: <span id="unrealizedProfits">${Beautify(stockList.unrealizedProfits, 0)}</span>.</span>
+//		</div>
+//	`;
+//	html += `
+//		<div class="stocker-stats">
+//			<span class="stat">Profitable stocks: <span id="profitableStocks">0</span>.</span>
+//			<span class="stat">Unprofitable stocks: <span id="unprofitableStocks">0</span>.</span>
+//			<span class="stat">Profitable trades: <span id="profitableTrades">0</span>.</span>
+//			<span class="stat">Unprofitable trades: <span id="unprofitableTrades">0</span>.</span>
+//			<span class="break"></span>
+//			<span class="stat">Average profit per trade: <span id="averageProfit">$0</span>.</span>
+//			<span class="stat">Average loss per trade: <span id="averageLoss">$0</span>.</span>
+//		</div>
+//	`;
+//	return html;
+//};
 
 // Shows or hides the optional block immediately when the option changes.
 // If enabling and the container doesn't exist yet, we create and populate it.
