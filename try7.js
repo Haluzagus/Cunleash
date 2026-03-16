@@ -343,13 +343,48 @@ CookiStocker.ensureReportTimer = function() {
 	CookiStocker.reportTimer = setInterval(function(){ CookiStocker.Reports(); }, next);
 };
 
+CookiStocker.ensureAchievements = function(){
+	if (Game.Achievements['Plasmic assets'] && Game.Achievements['Bose-Einstein Condensed Assets']) 
+		return;	// already created
+	CookiStocker.AchPlasmic = CCSE.NewAchievement(
+		'Plasmic assets',
+		'Have your stock market profits surpass <b>$100 million</b>.<q>This will get you charged up!</q><q>Your warehouse companies double their space.</q>',
+		[10,13]
+	);
+	CookiStocker.AchPlasmic.order = 1003100;
+	CookiStocker.AchBoseEinstein = CCSE.NewAchievement(
+		'Bose-Einstein Condensed Assets',
+		'Have your stock market profits surpass <b>$500 million</b>.<q>You have so many assets, we need to condense them!</q><q>Your warehouse companies double their space.</q>',
+		[9,19]
+	);
+	CookiStocker.AchBoseEinstein.pool = 'shadow';
+	CookiStocker.AchBoseEinstein.order = 1003101;
+};
+
 Game.registerMod('CookiStocker',{
 	init: function () {
 		Game.registerHook('reset', function (hard) {
 			CookiStocker.reset(hard);
 		});
 
-
+		// Defer menu wiring until CCSE is available (prevents load-time crash)
+		(function waitCCSE(tries) {
+			if (typeof CCSE !== 'undefined'
+				&& typeof CCSE.AppendCollapsibleOptionsMenu === 'function'
+				&& typeof CCSE.AppendStatsVersionNumber === 'function') {
+				try {
+					CookiStocker.ReplaceGameMenu();
+				} catch (e) {
+					console.warn('[CookiStocker] ReplaceGameMenu failed; will retry shortly:', e);
+					setTimeout(function(){ waitCCSE(tries - 1); }, 250);
+					return;
+				}
+			} else if (tries > 0) {
+				setTimeout(function(){ waitCCSE(tries - 1); }, 250);
+			} else {
+				console.warn('[CookiStocker] CCSE not detected; Options/Stats menu will not be installed.');
+			}
+		})(120);	// up to ~30s
 
 		Game.Notify('CookiStocker is loaded', stockerGreeting, [1, 33], false);
 
@@ -357,82 +392,6 @@ Game.registerMod('CookiStocker',{
 		this.startStocking();
 	},
 
-CookiStocker.save = function() {
-	var str = '';
-
-	if (typeof CookiStocker.Bank === 'undefined')
-		return '';
-	let market = CookiStocker.Bank.goodsById;
-	str += Number(stockList.Check);
-	for (let i = 0; i < market.length; i++) {
-		str += '_' + encodeURIComponent(stockList.Goods[i].name);
-		str += '_' + Number(stockList.Goods[i].stock);
-		str += '_' + Number(stockList.Goods[i].val);
-		str += '_' + Number(stockList.Goods[i].currentPrice);
-		str += '_' + Number(stockList.Goods[i].mode);
-		str += '_' + Number(stockList.Goods[i].lastMode);
-		str += '_' + Number(stockList.Goods[i].lastDur);
-		str += '_' + Number(stockList.Goods[i].unchangedDur);
-		str += '_' + Number(stockList.Goods[i].dropCount);
-		str += '_' + Number(stockList.Goods[i].riseCount);
-		str += '_' + Number(stockList.Goods[i].profit);
-		str += '_' + (+!!stockList.Goods[i].someSold);
-		str += '_' + (+!!stockList.Goods[i].someBought);
-	}
-	str += '_' + Number(stockList.Start);
-	str += '_' + Number(stockList.lastTime);
-	str += '_' + Number(stockList.startingProfits);
-	str += '_' + Number(stockList.Profits);
-	str += '_' + Number(stockList.netProfits);
-	str += '_' + Number(stockList.grossProfits);
-	str += '_' + Number(stockList.grossLosses);
-	str += '_' + Number(stockList.totalStocks);
-	str += '_' + Number(stockList.totalShares);
-	str += '_' + Number(stockList.totalValue);
-	str += '_' + Number(stockList.unrealizedProfits);
-	str += '_' + Number(stockList.profitableStocks);
-	str += '_' + Number(stockList.unprofitableStocks);
-	str += '_' + Number(stockList.profitableTrades);
-	str += '_' + Number(stockList.unprofitableTrades);
-	str += '_' + Number(stockList.Purchases);
-	str += '_' + Number(stockList.Sales);
-	str += '_' + Number(stockList.Uptime);
-	str += '_' + Number(stockList.hourlyProfits);
-	str += '_' + Number(stockList.dailyProfits);
-	str += '_' + Number(stockList.minCookies);
-	str += '_' + Number(stockList.maxCookies);
-	str += '_' + (+!!stockList.noModActions);
-	str += '_' + Number(stockList.origCookiesPsRawHighest);
-	for (i = 0; i < stockerModeProfits.length; i++)
-		for (j = 0; j < stockerModeProfits[i].length; j++)
-			for (k = 0; k < stockerModeProfits[i][j].length; k++)
-				str += '_' + Number(stockerModeProfits[i][j][k]);
-	str += '_' + Number(Game.Achievements['Plasmic assets'].won);
-	str += '_' + Number(Game.Achievements['Bose-Einstein Condensed Assets'].won);
-// Append options tail (backward‑compatible)
-	const cfg = {
-		stockerAutoTrading,
-		stockerMinBrokers,
-		stockerAutoBuyMinimumBrokers,
-		stockerTransactionNotifications,
-		stockerActivityReport,
-		stockerActivityReportFrequency,
-		stockerFastNotifications,
-		stockerConsoleAnnouncements,
-		stockerAdditionalTradingStats,
-		stockerLoopFrequency,
-		stockerForceLoopUpdates,
-		stockerCookiesThreshold,
-		stockerResourcesWarning,
-		stockerMarketOn,
-		stockerExponential,
-		stockerExponentialPower,
-		stockerAutoBuyAdditionalBrokers,
-	};
-	str += '|CFG:' + JSON.stringify(cfg);
-	return str;
-}
-	
 	save: function () {
 		return CookiStocker.save();
 	},
@@ -485,7 +444,7 @@ CookiStocker.save = function() {
 		CookiStocker.patchedMaxStock || (function(){ /* the override above */ })();
 		if (!CookiStocker.patchedMaxStock) {
 			var M = Game.Objects['Bank'].minigame;
-			
+			var oldGet = M.getGoodMaxStock;
 			M.getGoodMaxStock = function(good){
 				var base = oldGet.call(this, good);
 				if (CookiStocker.Bank.officeLevel < 3 || stockList.Profits < CS_PLASMIC_PROFITS)
@@ -510,9 +469,9 @@ CookiStocker.save = function() {
 				}
 				return Math.ceil(base * mult);
 			};
+      
 			CookiStocker.patchedMaxStock = true;
 		}
-		var oldGet = M.getGoodMaxStock;
 		CookiStocker.installBankTickHook();
 		
 		let datStr = `
@@ -1437,7 +1396,81 @@ function sleepSync(ms) {
 }
 */
 
+CookiStocker.save = function() {
+	var str = '';
 
+	if (typeof CookiStocker.Bank === 'undefined')
+		return '';
+	let market = CookiStocker.Bank.goodsById;
+	str += Number(stockList.Check);
+	for (let i = 0; i < market.length; i++) {
+		str += '_' + encodeURIComponent(stockList.Goods[i].name);
+		str += '_' + Number(stockList.Goods[i].stock);
+		str += '_' + Number(stockList.Goods[i].val);
+		str += '_' + Number(stockList.Goods[i].currentPrice);
+		str += '_' + Number(stockList.Goods[i].mode);
+		str += '_' + Number(stockList.Goods[i].lastMode);
+		str += '_' + Number(stockList.Goods[i].lastDur);
+		str += '_' + Number(stockList.Goods[i].unchangedDur);
+		str += '_' + Number(stockList.Goods[i].dropCount);
+		str += '_' + Number(stockList.Goods[i].riseCount);
+		str += '_' + Number(stockList.Goods[i].profit);
+		str += '_' + (+!!stockList.Goods[i].someSold);
+		str += '_' + (+!!stockList.Goods[i].someBought);
+	}
+	str += '_' + Number(stockList.Start);
+	str += '_' + Number(stockList.lastTime);
+	str += '_' + Number(stockList.startingProfits);
+	str += '_' + Number(stockList.Profits);
+	str += '_' + Number(stockList.netProfits);
+	str += '_' + Number(stockList.grossProfits);
+	str += '_' + Number(stockList.grossLosses);
+	str += '_' + Number(stockList.totalStocks);
+	str += '_' + Number(stockList.totalShares);
+	str += '_' + Number(stockList.totalValue);
+	str += '_' + Number(stockList.unrealizedProfits);
+	str += '_' + Number(stockList.profitableStocks);
+	str += '_' + Number(stockList.unprofitableStocks);
+	str += '_' + Number(stockList.profitableTrades);
+	str += '_' + Number(stockList.unprofitableTrades);
+	str += '_' + Number(stockList.Purchases);
+	str += '_' + Number(stockList.Sales);
+	str += '_' + Number(stockList.Uptime);
+	str += '_' + Number(stockList.hourlyProfits);
+	str += '_' + Number(stockList.dailyProfits);
+	str += '_' + Number(stockList.minCookies);
+	str += '_' + Number(stockList.maxCookies);
+	str += '_' + (+!!stockList.noModActions);
+	str += '_' + Number(stockList.origCookiesPsRawHighest);
+	for (i = 0; i < stockerModeProfits.length; i++)
+		for (j = 0; j < stockerModeProfits[i].length; j++)
+			for (k = 0; k < stockerModeProfits[i][j].length; k++)
+				str += '_' + Number(stockerModeProfits[i][j][k]);
+	str += '_' + Number(Game.Achievements['Plasmic assets'].won);
+	str += '_' + Number(Game.Achievements['Bose-Einstein Condensed Assets'].won);
+// Append options tail (backward‑compatible)
+	const cfg = {
+		stockerAutoTrading,
+		stockerMinBrokers,
+		stockerAutoBuyMinimumBrokers,
+		stockerTransactionNotifications,
+		stockerActivityReport,
+		stockerActivityReportFrequency,
+		stockerFastNotifications,
+		stockerConsoleAnnouncements,
+		stockerAdditionalTradingStats,
+		stockerLoopFrequency,
+		stockerForceLoopUpdates,
+		stockerCookiesThreshold,
+		stockerResourcesWarning,
+		stockerMarketOn,
+		stockerExponential,
+		stockerExponentialPower,
+		stockerAutoBuyAdditionalBrokers,
+	};
+	str += '|CFG:' + JSON.stringify(cfg);
+	return str;
+}
 
 CookiStocker.load = function(str) {
 	let i = 0;
