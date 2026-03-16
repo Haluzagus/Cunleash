@@ -149,3 +149,71 @@ if (!CookiStocker.isLoaded) {
 		});
 	}
 }
+
+function ensureStockerStyles() {
+	if (document.getElementById('stocker-styles')) return; // avoid duplicates
+	const css = `
+		.stocker-stats{
+			display:flex;
+			flex-wrap:wrap;		/* allow wrapping onto a new line */
+			justify-content:center;	/* center each line */
+			align-items:baseline;
+			gap:0 3px;		/* horizontal spacing between fields */
+			white-space:normal;	/* permit wrapping */
+		}
+		.stocker-stats .stat{
+			white-space:nowrap;	/* keep each field intact */
+			font-size:10px;
+			color:rgba(255,255,255,0.8);
+			padding:1px 3px;
+		}
+		/* Force a manual break after a chosen field on narrow panes */
+		.stocker-stats .break{ flex-basis:100%; height:0; }
+		@media (min-width: 950px){ .stocker-stats .break{ display:none; } }
+	`;
+	const style = document.createElement('style');
+	style.id = 'stocker-styles';
+	style.textContent = css;
+	document.head.appendChild(style);
+}
+ensureStockerStyles();
+
+// Optional stats container id
+CookiStocker.extraStatsId = 'stockerExtra';
+
+// Rebuilds the 2nd/3rd/4th lines exactly as before
+CookiStocker.buildExtraStatsHTML = function(){
+	// These are the same strings you already use (datStr2/datStr3/datStr4)
+	// Keeping markup identical; wrapped by our container.
+	let html = '';
+	html += `
+		<div class="stocker-stats">
+			<span class="stat">Net cookies won: <span id="netCookies">0</span>.</span>
+			<span class="stat">Cookies per hour: <span id="cookiesHour">0</span>.</span>
+			<span class="stat">Cookies per day: <span id="cookiesDay">0</span>.</span>
+			<span class="stat">Purchases: <span id="Purchases">0</span>.</span>
+			<span class="stat">Sales: <span id="Sales">0</span>.</span>
+		</div>
+	`;
+	html += `
+		<div class="stocker-stats">
+			<span class="stat">CPS multiple: <span id="cpsMultiple">0</span>.</span>
+			<span class="stat">Stocks held: <span id="stocksHeld">${stockList.totalStocks}</span>.</span>
+			<span class="stat">Total shares: <span id="totalShares">${Beautify(stockList.totalShares, 0)}</span>.</span>
+			<span class="stat">Total value: <span id="totalValue">${Beautify(stockList.totalValue, 2)}</span>.</span>
+			<span class="stat">Unrealized profits: <span id="unrealizedProfits">${Beautify(stockList.unrealizedProfits, 0)}</span>.</span>
+		</div>
+	`;
+	html += `
+		<div class="stocker-stats">
+			<span class="stat">Profitable stocks: <span id="profitableStocks">0</span>.</span>
+			<span class="stat">Unprofitable stocks: <span id="unprofitableStocks">0</span>.</span>
+			<span class="stat">Profitable trades: <span id="profitableTrades">0</span>.</span>
+			<span class="stat">Unprofitable trades: <span id="unprofitableTrades">0</span>.</span>
+			<span class="break"></span>
+			<span class="stat">Average profit per trade: <span id="averageProfit">$0</span>.</span>
+			<span class="stat">Average loss per trade: <span id="averageLoss">$0</span>.</span>
+		</div>
+	`;
+	return html;
+};
