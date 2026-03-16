@@ -343,24 +343,6 @@ CookiStocker.ensureReportTimer = function() {
 	CookiStocker.reportTimer = setInterval(function(){ CookiStocker.Reports(); }, next);
 };
 
-CookiStocker.ensureAchievements = function(){
-	if (Game.Achievements['Plasmic assets'] && Game.Achievements['Bose-Einstein Condensed Assets']) 
-		return;	// already created
-	CookiStocker.AchPlasmic = CCSE.NewAchievement(
-		'Plasmic assets',
-		'Have your stock market profits surpass <b>$100 million</b>.<q>This will get you charged up!</q><q>Your warehouse companies double their space.</q>',
-		[10,13]
-	);
-	CookiStocker.AchPlasmic.order = 1003100;
-	CookiStocker.AchBoseEinstein = CCSE.NewAchievement(
-		'Bose-Einstein Condensed Assets',
-		'Have your stock market profits surpass <b>$500 million</b>.<q>You have so many assets, we need to condense them!</q><q>Your warehouse companies double their space.</q>',
-		[9,19]
-	);
-	CookiStocker.AchBoseEinstein.pool = 'shadow';
-	CookiStocker.AchBoseEinstein.order = 1003101;
-};
-
 Game.registerMod('CookiStocker',{
 	init: function () {
 		Game.registerHook('reset', function (hard) {
