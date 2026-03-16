@@ -61,8 +61,8 @@ const CS_GASEOUS_PROFITS = 31536000;			// $31,536,000
 const CS_PLASMIC_PROFITS = 100000000;			// $100,000,000
 const CS_BOSE_EINSTEIN_PROFITS = 500000000;		// $500,000,000
 
-//if (typeof CCSE === 'undefined')
-//	Game.LoadMod("https://klattmose.github.io/CookieClicker/CCSE.js")
+if (typeof CCSE === 'undefined')
+	Game.LoadMod('https://klattmose.github.io/CookieClicker/SteamMods/CCSE/main.js')
 
 if (typeof CookiStocker === 'undefined') var CookiStocker = {};
 
