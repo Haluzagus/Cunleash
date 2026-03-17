@@ -345,7 +345,38 @@ Game.registerMod('CookiStocker',{
 		Game.registerHook('reset', function (hard) {
 			CookiStocker.reset(hard);
 		});
+//insert
+CookiStocker.ReplaceGameMenu = function()
+{
+	Game.customOptionsMenu.push(function()
+	{
+		// Build a real node from the HTML string
+		const content = document.createElement('div');
+		content.innerHTML = CookiStocker.getMenuString();
 
+		// CCSE expects a Node here, not a string
+		CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
+	});
+	
+	Game.customStatsMenu.push(function() {
+		CCSE.AppendStatsVersionNumber(CookiStocker.name, CookiStocker.version);
+		if (!CookiStocker.Bank || !CookiStocker.Bank.goodsById) return;
+		
+		// example rollup; adjust to taste
+		var p = CookiStocker.Bank.profit;
+		var held = CookiStocker.Bank.goodsById.reduce((a,g)=>a+g.stock,0);
+		var worth = CookiStocker.Bank.goodsById.reduce((a,g)=>a+g.stock * g.val * Game.cookiesPsRawHighest,0);
+		
+		CCSE.AppendStatsGeneral('<div class="listing"><b>Stock Market has earned you :</b><div class="price plain"> $' + Beautify(p) + ' (' + Game.tinyCookie() + Beautify(p * Game.cookiesPsRawHighest) + ' cookies)</div></div>');
+/*		CCSE.AppendStatsGeneral(
+			'<div class="listing"><b>CookiStocker</b></div>'
+			+ '<div class="listing">Net profits: <b>$' + Beautify(p, 2) + '</b></div>'
+			+ '<div class="listing">Total shares held: <b>' + Beautify(held) + '</b></div>'
+			+ '<div class="listing">Portfolio (at current prices): <b>$' + Beautify(worth,2) + '</b></div>'
+		);
+*/	});
+}
+	//end insert
 		// Defer menu wiring until CCSE is available (prevents load-time crash)
 		(function waitCCSE(tries) {
 			if (typeof CCSE !== 'undefined'
@@ -538,7 +569,6 @@ Game.registerMod('CookiStocker',{
 			});
 			console.log('Stock: ' + market[i].name.replace('%1', Game.bakeryName) + ' Status: ' + modeDecoder[market[i].mode] + ' at $' + market[i].val + (market[i].stock ? ' (own)' : ''));
 		}
-		CookiStocker.ensureAchievements();
 		CookiStocker.ensureReportTimer();
 		CookiStocker.TradingStats();
 		// restart the loop cleanly
