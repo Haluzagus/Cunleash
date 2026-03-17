@@ -22,13 +22,13 @@
   
   function startAutoClicker() {
     console.log('Auto-clicker started');
-    Game.Notify(`Auto clicker ON`,`Press X to toggle`,[0,35],false);
+    Game.Notify(`Auto clicker ON`,`Press X to toggle`,[0,35],true);
     intervalId = setInterval(function() { Game.ClickCookie(); }, 4);
   }
 
   function stopAutoClicker() {
     console.log('Auto-clicker stopped');
-    Game.Notify(`Auto clicker OFF`,`Press X to toggle`,[0,35],false);
+    Game.Notify(`Auto clicker OFF`,`Press X to toggle`,[0,35],true);
     clearInterval(intervalId);
   }
 
