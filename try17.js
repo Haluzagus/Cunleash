@@ -348,15 +348,12 @@ Game.registerMod('CookiStocker',{
 //insert
 CookiStocker.ReplaceGameMenu = function()
 {
-	Game.customOptionsMenu(function()
-	{
-		// Build a real node from the HTML string
-		const content = document.createElement('div');
-		content.innerHTML = CookiStocker.getMenuString();
-
-		// CCSE expects a Node here, not a string
-		CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
-	});
+if (!Game.customOptionsMenu) Game.customOptionsMenu = []; // Safety check
+Game.customOptionsMenu.push(function() {
+    const content = document.createElement('div');
+    content.innerHTML = CookiStocker.getMenuString();
+    CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
+});
 	
 	Game.customStatsMenu.push(function() {
 		CCSE.AppendStatsVersionNumber(CookiStocker.name, CookiStocker.version);
