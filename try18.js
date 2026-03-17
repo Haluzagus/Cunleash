@@ -372,7 +372,7 @@ Game.customOptionsMenu.push(function() {
 			+ '<div class="listing">Portfolio (at current prices): <b>$' + Beautify(worth,2) + '</b></div>'
 		);
 */	});
-}
+};
 	//end insert
 		// Defer menu wiring until CCSE is available (prevents load-time crash)
 		(function waitCCSE(tries) {
