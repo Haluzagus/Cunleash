@@ -348,7 +348,7 @@ Game.registerMod('CookiStocker',{
 //insert
 CookiStocker.ReplaceGameMenu = function()
 {
-	Game.customOptionsMenu.push(function()
+	Game.customOptionsMenu(function()
 	{
 		// Build a real node from the HTML string
 		const content = document.createElement('div');
