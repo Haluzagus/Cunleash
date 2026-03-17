@@ -287,3 +287,56 @@ CookiStocker._onMarketTick = function() {
 		}, delay);
 	}, 500);	// let the minigame finish its own recompute
 };
+CookiStocker.installBankTickHook = function() {
+	if (CookiStocker._tickHookInstalled) return;
+
+	var M = Game && Game.Objects && Game.Objects['Bank'] && Game.Objects['Bank'].minigame;
+	if (!M || typeof M.tick !== 'function') return;
+
+	CookiStocker._tickHookInstalled = 1;
+	var _origTick = M.tick;
+	M.tick = function() {
+		var ret = _origTick.apply(this, arguments);
+		if (typeof stockerMarketOn === 'undefined' || stockerMarketOn) {
+			CookiStocker._onMarketTick();
+		}
+		return ret;
+	};
+};
+
+// One place to hold the interval handle + the current period (ms)
+CookiStocker.reportTimer = 0;
+CookiStocker._reportEveryMs = 0;
+
+// Arm/disarm the periodic reporter so there is exactly one timer when needed
+CookiStocker.ensureReportTimer = function() {
+	if (Game.OnAscend || CookiStocker.reportTimer) {
+		clearInterval(CookiStocker.reportTimer);
+		CookiStocker.reportTimer = 0;
+	}
+
+	// Do we need a periodic timer at all right now?
+	const need = stockerMarketOn && (stockerActivityReport || stockerConsoleAnnouncements);
+	const next = need ? Math.max(1000, (+stockerActivityReportFrequency || 3600000)) : 0;
+
+	// If we don't need it, tear down anything that exists and reset bookkeeping
+	if (!need) {
+		if(CookiStocker.reportTimer) {
+			clearInterval(CookiStocker.reportTimer);
+			CookiStocker.reportTimer = 0;
+		}
+		CookiStocker._reportEveryMs = 0;
+		return;
+	}
+
+	// If we need it and the period hasn't changed and it's already running, do nothing
+	if (CookiStocker.reportTimer && CookiStocker._reportEveryMs === next) return;
+
+	// (Re)arm with the new period
+	if (CookiStocker.reportTimer) {
+		clearInterval(CookiStocker.reportTimer);
+		CookiStocker.reportTimer = 0;
+	}
+	CookiStocker._reportEveryMs = next;
+	CookiStocker.reportTimer = setInterval(function(){ CookiStocker.Reports(); }, next);
+};
