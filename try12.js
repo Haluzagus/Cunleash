@@ -217,3 +217,73 @@ CookiStocker.buildExtraStatsHTML = function(){
 	`;
 	return html;
 };
+// Shows or hides the optional block immediately when the option changes.
+// If enabling and the container doesn't exist yet, we create and populate it.
+CookiStocker.updateAdditionalStatsVisibility = function(){
+	const header = l('bankHeader');
+	const host = header && header.firstChild ? header.firstChild : null;
+	if (!host) return;
+
+	let extra = l(CookiStocker.extraStatsId);
+
+	if (stockerAdditionalTradingStats){
+		// Ensure container exists and is visible
+		if (!extra){
+			extra = document.createElement('div');
+			extra.id = CookiStocker.extraStatsId;
+			extra.innerHTML = CookiStocker.buildExtraStatsHTML();
+			host.appendChild(extra);
+		}
+		extra.style.display = '';
+	} else {
+		// Hide; we could also removeChild if you prefer to tear it down
+		if (extra){
+			extra.style.display = 'none';
+		}
+	}
+};
+
+
+function stockerTimeBeautifier(duration) {
+	var milliseconds = Math.floor(duration % 1000),
+	  seconds = Math.floor((duration / 1000) % 60),
+	  minutes = Math.floor((duration / (1000 * 60)) % 60),
+	  hours = Math.floor((duration / (1000 * 60 * 60)) % 24),
+	  days = Math.floor(duration / (1000 * 60 * 60 * 24));
+	if (seconds && (minutes || hours || days) && !stockerForceLoopUpdates)
+		seconds = 0;						// Don't display
+	var strSeconds = seconds + ' second' + (seconds != 1 ? 's' : '');
+	var strMinutes = minutes ? minutes + ' minute' + (minutes != 1 ? 's' : '') + (seconds ? (hours || days ? ', and ' : ' and ') : '') : '';
+	var strHours = hours ? hours + ' hour' + (hours != 1 ? 's' : '') + (minutes && seconds ? ', ' : ((minutes ? !seconds : seconds) ? ' and ' : '')) : '';
+	var strDays = days ? days + ' day' + (days != 1 ? 's' : '') + (hours && minutes || hours && seconds || minutes && seconds ? ', ' : (((hours ? !minutes : minutes) ? !seconds : seconds) ? ' and ' : '')) : '';
+	var strTime = strDays + strHours + strMinutes;
+	if (stockerForceLoopUpdates && seconds)
+		strTime += strSeconds; 
+	if (minutes || hours || days) {
+		return (strTime);
+	} else
+		return (strSeconds);
+}
+
+// --- Anchored scheduling on each market tick ------------------------------
+CookiStocker._tickHookInstalled	= 0;
+CookiStocker._tickTimeout = 0;
+CookiStocker._reportTimeout = 0;
+
+CookiStocker._onMarketTick = function() {
+	if (Game.OnAscend) return;
+	if (CookiStocker._tickTimeout) { clearTimeout(CookiStocker._tickTimeout); CookiStocker._tickTimeout = 0; }
+	if (CookiStocker._reportTimeout) { clearTimeout(CookiStocker._reportTimeout); CookiStocker._reportTimeout = 0; }
+
+	CookiStocker._tickTimeout = setTimeout(function() {
+		try {
+			if (typeof stockerLoop === 'function') stockerLoop();
+			else if (CookiStocker && typeof CookiStocker.stockerLoop === 'function') CookiStocker.stockerLoop();
+		} catch (e) {}
+
+		var delay = stockerForceLoopUpdates ? 0 : 30000;	// 0 ms when forcing; else 30 s
+		CookiStocker._reportTimeout = setTimeout(function() {
+			try { CookiStocker.Reports(); } catch (e) {}
+		}, delay);
+	}, 500);	// let the minigame finish its own recompute
+};
