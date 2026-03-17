@@ -808,7 +808,7 @@ Game.customOptionsMenu.push(function() {
 			}
 		},stockerLoopFrequency);
 	},
-})
+});
 CookiStocker.TradingStats = function()
 {
 	if (typeof CookiStocker.Bank === 'undefined')
