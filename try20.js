@@ -374,7 +374,32 @@ Game.customOptionsMenu.push(function() {
 */	});
 };
 //
+load: function (str) {
+		var tries = 0;
+		(function tryLoad() {
+			var bankReady =
+				typeof Game === 'object' && Game.ready &&
+				Game.Objects && Game.Objects['Bank'] &&
+				Game.Objects['Bank'].minigame && stockList.Goods[0];
 
+			if (bankReady) {
+				try {
+					// Ensure CookiStocker sees the Bank minigame
+					if (typeof CookiStocker.Bank === 'undefined' || !CookiStocker.Bank) {
+						CookiStocker.Bank = Game.Objects['Bank'].minigame;
+					}
+					CookiStocker.load(str || '');
+				} catch (e) {
+					console.warn('[CookiStocker] load failed:', e);
+				}
+			} else {
+				// Try again a few times while the game finishes loading UI/minigames.
+				if (tries++ < 120) setTimeout(tryLoad, 250); // up to ~30s
+				else console.warn('[CookiStocker] load skipped (Bank minigame never became ready).');
+			}
+		})();
+	},
+//
 CookiStocker.TradingStats = function()
 {
 	if (typeof CookiStocker.Bank === 'undefined')
