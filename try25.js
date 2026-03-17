@@ -4,7 +4,7 @@
 		var stockerAutoTrading = true
 
 		// Stock market is running when true
-		var stockerMarketOn = false;
+		var stockerMarketOn = true;
 
 		// Minimum number of brokers required for automatic trading
 		var stockerMinBrokers = 72				// Default of 72 results in 0.5% commission
@@ -62,7 +62,7 @@ const CS_PLASMIC_PROFITS = 100000000;			// $100,000,000
 const CS_BOSE_EINSTEIN_PROFITS = 500000000;		// $500,000,000
 
 if (typeof CCSE === 'undefined')
-	Game.LoadMod('https://klattmose.github.io/CookieClicker/CCSE.js')
+	Game.LoadMod('https://klattmose.github.io/CookieClicker/SteamMods/CCSE/main.js')
 
 if (typeof CookiStocker === 'undefined') var CookiStocker = {};
 
@@ -217,6 +217,7 @@ CookiStocker.buildExtraStatsHTML = function(){
 	`;
 	return html;
 };
+
 // Shows or hides the optional block immediately when the option changes.
 // If enabling and the container doesn't exist yet, we create and populate it.
 CookiStocker.updateAdditionalStatsVisibility = function(){
@@ -287,6 +288,7 @@ CookiStocker._onMarketTick = function() {
 		}, delay);
 	}, 500);	// let the minigame finish its own recompute
 };
+
 CookiStocker.installBankTickHook = function() {
 	if (CookiStocker._tickHookInstalled) return;
 
@@ -340,43 +342,31 @@ CookiStocker.ensureReportTimer = function() {
 	CookiStocker._reportEveryMs = next;
 	CookiStocker.reportTimer = setInterval(function(){ CookiStocker.Reports(); }, next);
 };
+
+CookiStocker.ensureAchievements = function(){
+	if (Game.Achievements['Plasmic assets'] && Game.Achievements['Bose-Einstein Condensed Assets']) 
+		return;	// already created
+	CookiStocker.AchPlasmic = CCSE.NewAchievement(
+		'Plasmic assets',
+		'Have your stock market profits surpass <b>$100 million</b>.<q>This will get you charged up!</q><q>Your warehouse companies double their space.</q>',
+		[10,13]
+	);
+	CookiStocker.AchPlasmic.order = 1003100;
+	CookiStocker.AchBoseEinstein = CCSE.NewAchievement(
+		'Bose-Einstein Condensed Assets',
+		'Have your stock market profits surpass <b>$500 million</b>.<q>You have so many assets, we need to condense them!</q><q>Your warehouse companies double their space.</q>',
+		[9,19]
+	);
+	CookiStocker.AchBoseEinstein.pool = 'shadow';
+	CookiStocker.AchBoseEinstein.order = 1003101;
+};
+
 Game.registerMod('CookiStocker',{
 	init: function () {
 		Game.registerHook('reset', function (hard) {
 			CookiStocker.reset(hard);
 		});
-//insert
-CookiStocker.ReplaceGameMenu = function()
-{
-if (!Game.customOptionsMenu) Game.customOptionsMenu = []; // Safety check
-Game.customOptionsMenu.push(function() {
-    const content = document.createElement('div');
-    content.innerHTML = CookiStocker.getMenuString();
-    CCSE.AppendCollapsibleOptionsMenu(CookiStocker.name, content);
-});
-	
-	Game.customStatsMenu.push(function() {
-		CCSE.AppendStatsVersionNumber(CookiStocker.name, CookiStocker.version);
-		if (!CookiStocker.Bank || !CookiStocker.Bank.goodsById) return;
-		
-		// example rollup; adjust to taste
-		var p = CookiStocker.Bank.profit;
-		var held = CookiStocker.Bank.goodsById.reduce((a,g)=>a+g.stock,0);
-		var worth = CookiStocker.Bank.goodsById.reduce((a,g)=>a+g.stock * g.val * Game.cookiesPsRawHighest,0);
-		
-		CCSE.AppendStatsGeneral('<div class="listing"><b>Stock Market has earned you :</b><div class="price plain"> $' + Beautify(p) + ' (' + Game.tinyCookie() + Beautify(p * Game.cookiesPsRawHighest) + ' cookies)</div></div>');
-/*		CCSE.AppendStatsGeneral(
-			'<div class="listing"><b>CookiStocker</b></div>'
-			+ '<div class="listing">Net profits: <b>$' + Beautify(p, 2) + '</b></div>'
-			+ '<div class="listing">Total shares held: <b>' + Beautify(held) + '</b></div>'
-			+ '<div class="listing">Portfolio (at current prices): <b>$' + Beautify(worth,2) + '</b></div>'
-		);
-*/	});
-};
-//
 
-
-	//end insert
 		// Defer menu wiring until CCSE is available (prevents load-time crash)
 		(function waitCCSE(tries) {
 			if (typeof CCSE !== 'undefined'
@@ -569,6 +559,7 @@ Game.customOptionsMenu.push(function() {
 			});
 			console.log('Stock: ' + market[i].name.replace('%1', Game.bakeryName) + ' Status: ' + modeDecoder[market[i].mode] + ' at $' + market[i].val + (market[i].stock ? ' (own)' : ''));
 		}
+		CookiStocker.ensureAchievements();
 		CookiStocker.ensureReportTimer();
 		CookiStocker.TradingStats();
 		// restart the loop cleanly
@@ -808,94 +799,8 @@ Game.customOptionsMenu.push(function() {
 			}
 		},stockerLoopFrequency);
 	},
-});
-CookiStocker.TradingStats = function()
-{
-	if (typeof CookiStocker.Bank === 'undefined')
-		return;
+})
 
-	let i, shares, cookies;
-	let now = Date.now();
-	let market = CookiStocker.Bank.goodsById;
-
-	if (now > stockList.lastTime + stockerActivityReportFrequency + 500) {		// Were we sleeping?
-		stockList.Start += now - stockList.lastTime - stockerActivityReportFrequency;
-	}
-
-	stockList.totalStocks = 0;
-	stockList.totalShares = 0;
-	stockList.totalValue = 0;
-	stockList.unrealizedProfits = 0;
-	for (i = 0; i < market.length; i++) {
-		if (stockList.Goods[i].stock) {
-			stockList.totalStocks++;
-			stockList.totalShares += stockList.Goods[i].stock;
-			stockList.totalValue += stockList.Goods[i].stock * stockList.Goods[i].currentPrice;
-			stockList.unrealizedProfits += (market[i].val - market[i].prev) * stockList.Goods[i].stock;
-		}
-	}
-	stockList.minCookies = Number.MAX_VALUE;
-	stockList.maxCookies = 0;
-	for (i = 0; i < market.length; i++) {
-		shares = CookiStocker.Bank.getGoodMaxStock(market[i]) - market[i].stock;
-		cookies = shares * Game.cookiesPsRawHighest * market[i].val / stockerCookiesThreshold;
-		if (!stockList.minCookies || shares && cookies < stockList.minCookies)
-			stockList.minCookies = cookies;
-		if (shares && cookies > stockList.maxCookies)
-			stockList.maxCookies = cookies;
-	}
-	CookiStocker.DataStats("Brokers", CookiStocker.Bank.brokers, 0);
-	CookiStocker.DataStats("brokersNeeded", stockerMinBrokers, 0);
-	CookiStocker.DataStats("bankedCookies", Game.cookies, 0);
-	CookiStocker.DataStats("minCookies", stockList.minCookies, 0);
-	CookiStocker.DataStats("maxCookies", stockList.maxCookies, 0);
-	CookiStocker.DataStats("Profits", stockList.netProfits, 1);
-	CookiStocker.DataStats("profitsHour", stockList.hourlyProfits, 1);
-	CookiStocker.DataStats("profitsDay", stockList.dailyProfits, 1);
-	CookiStocker.DataStats("grossProfits", stockList.grossProfits, 1);
-	CookiStocker.DataStats("grossLosses", -stockList.grossLosses, 1);
-	stockList.lastTime = now;
-	stockList.Uptime = Math.floor((now - stockList.Start) / 1000) * 1000;
-	stockList.Uptime -= stockList.Uptime % stockerLoopFrequency;
-	let uptimeHours = Math.floor(stockList.Uptime / 3600000);
-	let uptimeDays = Math.floor(uptimeHours / 24);
-	if (uptimeDays >= 1) {
-		uptimeDays += ':';
-		uptimeHours %= 24;
-		if (uptimeHours < 10)
-			uptimeHours = '0' + uptimeHours;
-	} else
-		uptimeDays = '';
-	let it = l("runTime");
-	it.innerHTML = uptimeDays + uptimeHours + ':';
-	if (stockerForceLoopUpdates) {
-		it.innerHTML += new Date(stockList.Uptime).toLocaleTimeString([], {minute: '2-digit', second: '2-digit'});
-	} else {
-		let uptimeMinutes = (Math.floor(stockList.Uptime / 60000)) % 60;
-		it.innerHTML += (uptimeMinutes < 10 ? '0' : '') + uptimeMinutes;
-	}
-	if (stockerAdditionalTradingStats) {
-		CookiStocker.DataStats("netCookies", stockList.netProfits * Game.cookiesPsRawHighest, 0);
-		CookiStocker.DataStats("cookiesHour", stockList.hourlyProfits * Game.cookiesPsRawHighest, 0);
-		CookiStocker.DataStats("cookiesDay", stockList.dailyProfits * Game.cookiesPsRawHighest, 0);
-		l("Purchases").innerHTML = stockList.Purchases;
-		l("Sales").innerHTML = stockList.Sales;
-		l("cpsMultiple").innerHTML = stockList.hourlyProfits >= 0 ? Beautify(stockList.hourlyProfits / 3600, 3) : -Beautify(-stockList.hourlyProfits / 3600, 3);
-		l("stocksHeld").innerHTML = stockList.totalStocks;
-		l("totalShares").innerHTML = Beautify(stockList.totalShares);
-		CookiStocker.DataStats("totalValue", stockList.totalValue, 1); 
-		CookiStocker.DataStats("unrealizedProfits", stockList.unrealizedProfits, 1);
-		l("profitableStocks").innerHTML = stockList.profitableStocks;
-		l("unprofitableStocks").innerHTML = stockList.unprofitableStocks
-		l("profitableTrades").innerHTML = stockList.profitableTrades;
-		l("unprofitableTrades").innerHTML = stockList.unprofitableTrades;
-		CookiStocker.DataStats("averageProfit", stockList.profitableTrades ? stockList.grossProfits / stockList.profitableTrades : 0, 1);
-		CookiStocker.DataStats("averageLoss", stockList.unprofitableTrades ? -stockList.grossLosses / stockList.unprofitableTrades : 0, 1);
-	}
-	if (it.innerHTML == '')			
-		it.innerHTML = "0:00";
-	CookiStocker.updateWarn();
-};
 CookiStocker.Reports = function() {
 	if (l("Brokers") == null || !stockList.Amount || !stockList.canBuy)
 		return;				// Stock market went away
