@@ -2,7 +2,7 @@
   'use strict';
 
   let state1 = true; // initial state is ON
-  let intervalId1;
+  let intervalId;
 
   document.addEventListener('keydown', function(event) {
     if (event.code === 'KeyZ') {
@@ -21,7 +21,7 @@
   function startAutoGC() {
     console.log('Auto-GC started');
     Game.Notify(`Auto GC ON`,`Press Z to toggle`,[4,14],true);
-    intervalId1 = setInterval(function() {
+    intervalId = setInterval(function() {
     Game.shimmers.forEach(function(shimmer)
     {
         if(shimmer.type == "golden" && shimmer.wrath == 0)
@@ -35,13 +35,13 @@
   function stopAutoGC() {
     console.log('Auto-GC stopped');
     Game.Notify(`Auto GC OFF`,`Press Z to toggle`,[4,0],true);
-    clearInterval(intervalId1);
+    clearInterval(intervalId);
   }
 
   // Wait for the Game object to be defined, then start the auto-clicker
-  const waitIntervalId1 = setInterval(function() {
+  const waitintervalId = setInterval(function() {
     if (typeof Game !== 'undefined') {
-      clearInterval(waitIntervalId1);
+      clearInterval(waitintervalId);
       startAutoGC();
     }
   }, 1000);
