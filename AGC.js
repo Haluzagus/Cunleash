@@ -21,7 +21,7 @@
   function startAutoGC() {
     console.log('Auto-GC started');
     Game.Notify(`Auto GC ON`,`Press Z to toggle`,[4,14],true);
-    intervalId = setInterval(function() {
+    intervalId1 = setInterval(function() {
     Game.shimmers.forEach(function(shimmer)
     {
         if(shimmer.type == "golden" && shimmer.wrath == 0)
@@ -39,7 +39,7 @@
   }
 
   // Wait for the Game object to be defined, then start the auto-clicker
-  const waitIntervalId = setInterval(function() {
+  const waitIntervalId1 = setInterval(function() {
     if (typeof Game !== 'undefined') {
       clearInterval(waitIntervalId1);
       startAutoGC();
