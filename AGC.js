@@ -1,13 +1,13 @@
 (function() {
   'use strict';
 
-  let state = true; // initial state is ON
-  let intervalId;
+  let state1 = true; // initial state is ON
+  let intervalId1;
 
   document.addEventListener('keydown', function(event) {
     if (event.code === 'KeyZ') {
-      state = !state; // toggle state
-      if (state) {
+      state1 = !state1; // toggle state
+      if (state1) {
         // code to run when state is ON
         console.log('State is ON');
         startAutoGC();
@@ -35,13 +35,13 @@
   function stopAutoGC() {
     console.log('Auto-GC stopped');
     Game.Notify(`Auto GC OFF`,`Press Z to toggle`,[4,0],true);
-    clearInterval(intervalId);
+    clearInterval(intervalId1);
   }
 
   // Wait for the Game object to be defined, then start the auto-clicker
   const waitIntervalId = setInterval(function() {
     if (typeof Game !== 'undefined') {
-      clearInterval(waitIntervalId);
+      clearInterval(waitIntervalId1);
       startAutoGC();
     }
   }, 1000);
