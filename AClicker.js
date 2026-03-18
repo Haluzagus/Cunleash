@@ -40,16 +40,4 @@
     }
   }, 1000);
 })();
-
-
-setInterval(function() {
-    Game.shimmers.forEach(function(shimmer)
-    {
-        if(shimmer.type == "golden" && shimmer.wrath == 0)
-        {
-            shimmer.pop()
-        }
-    })
-}, 500);
-
 var autoReindeer = setInterval(function() { for (var h in Game.shimmers){if(Game.shimmers[h].type=="reindeer"){Game.shimmers[h].pop();}} }, 100);
